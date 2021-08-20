@@ -6582,8 +6582,14 @@ verify.siac_cts_output_cta_v1_91_packet_size = function(buffer)
   return true
 end
 
+low_ip = Address.ip("224.0.89.0")
+high_ip = Address.ip("224.0.89.255")
+
 -- Dissector Heuristic for Siac Cts Output Cta 1.91
 local function siac_cts_output_cta_v1_91_heuristic(buffer, packet, parent)
+  if packet.dst_port < 40000 or packet.dst_port > 40012 then return false end
+  if packet.dst < low_ip or packet.dst > high_ip then return false end
+
   -- Verify packet length
   if not verify.siac_cts_output_cta_v1_91_packet_size(buffer) then return false end
 
