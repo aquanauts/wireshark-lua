@@ -4802,6 +4802,15 @@ udp_table:add(65333, nasdaq_utdf_output_utp_v1_5)
 -- Protocol Heuristics
 -----------------------------------------------------------------------
 
+local low_ip = Address.ip("233.46.176.8")
+local high_ip = Address.ip("233.46.176.15")
+local low_port = 55640
+local high_port = 55645
+local function is_utdf(packet)
+  if packet.dst_port < low_port or packet.dst_port > high_port then return false end
+  if packet.dst < low_ip or packet.dst > high_ip then return false end
+  return true
+end
 -- Verify size of packet
 verify.nasdaq_utdf_output_utp_v1_5_packet_size = function(buffer)
 
@@ -4810,6 +4819,7 @@ end
 
 -- Dissector Heuristic for Nasdaq Utdf Output Utp 1.5
 local function nasdaq_utdf_output_utp_v1_5_heuristic(buffer, packet, parent)
+  if not is_utdf(packet) then return false end
   -- Verify packet length
   if not verify.nasdaq_utdf_output_utp_v1_5_packet_size(buffer) then return false end
 
