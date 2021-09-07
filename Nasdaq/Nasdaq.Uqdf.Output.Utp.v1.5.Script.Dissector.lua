@@ -4410,7 +4410,7 @@ udp_table:add(65333, nasdaq_uqdf_output_utp_v1_5)
 -----------------------------------------------------------------------
 
 local low_ip = Address.ip("233.46.176.0")
-local high_ip = Address.ip("233.46.176.7")
+local high_ip = Address.ip("233.46.176.255")
 local low_port = 55630
 local high_port = 55635
 local function is_uqdf(packet)
