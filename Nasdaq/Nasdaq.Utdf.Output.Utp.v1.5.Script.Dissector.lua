@@ -122,6 +122,7 @@ nasdaq_utdf_output_utp_v1_5.fields.sip_timestamp = ProtoField.new("Sip Timestamp
 nasdaq_utdf_output_utp_v1_5.fields.start_of_day_message = ProtoField.new("Start Of Day Message", "nasdaq.utdf.output.utp.v1.5.startofdaymessage", ftypes.STRING)
 nasdaq_utdf_output_utp_v1_5.fields.sub_market_center_id = ProtoField.new("Sub Market Center Id", "nasdaq.utdf.output.utp.v1.5.submarketcenterid", ftypes.STRING)
 nasdaq_utdf_output_utp_v1_5.fields.symbol = ProtoField.new("Symbol", "nasdaq.utdf.output.utp.v1.5.symbol", ftypes.STRING)
+nasdaq_utdf_output_utp_v1_5.fields.symbol_long = ProtoField.new("Symbol Long", "nasdaq.utdf.output.utp.v1.5.symbol_long", ftypes.STRING)
 nasdaq_utdf_output_utp_v1_5.fields.text = ProtoField.new("Text", "nasdaq.utdf.output.utp.v1.5.text", ftypes.STRING)
 nasdaq_utdf_output_utp_v1_5.fields.text_length = ProtoField.new("Text Length", "nasdaq.utdf.output.utp.v1.5.textlength", ftypes.UINT16)
 nasdaq_utdf_output_utp_v1_5.fields.timestamp_of_trade = ProtoField.new("Timestamp Of Trade", "nasdaq.utdf.output.utp.v1.5.timestampoftrade", ftypes.UINT64)
@@ -1655,6 +1656,26 @@ dissect.symbol = function(buffer, offset, packet, parent)
   local display = display.symbol(value, buffer, offset, packet, parent)
 
   parent:add(nasdaq_utdf_output_utp_v1_5.fields.symbol, range, value, display)
+
+  return offset + length, value
+end
+
+-- Size: Long Symbol
+size_of.symbol_long = 11
+
+-- Display: Long Symbol
+display.symbol_long = function(value)
+  return "Symbol: "..value
+end
+
+-- Dissect: Long Symbol
+dissect.symbol_long = function(buffer, offset, packet, parent)
+  local length = size_of.symbol_long
+  local range = buffer(offset, length)
+  local value = range:string()
+  local display = display.symbol_long(value, buffer, offset, packet, parent)
+
+  parent:add(nasdaq_utdf_output_utp_v1_5.fields.symbol_long, range, value, display)
 
   return offset + length, value
 end
@@ -4123,8 +4144,8 @@ dissect.trade_report_message_long_form_message_fields = function(buffer, offset,
   -- Finra Timestamp: 8 Byte Unsigned Fixed Width Integer
   index, finra_timestamp = dissect.finra_timestamp(buffer, index, packet, parent)
 
-  -- Symbol: 5 Byte Ascii String
-  index, symbol = dissect.symbol(buffer, index, packet, parent)
+  -- Symbol: 11 Byte Ascii String
+  index, symbol = dissect.symbol_long(buffer, index, packet, parent)
 
   -- Trade Id: 8 Byte Unsigned Fixed Width Integer
   index, trade_id = dissect.trade_id(buffer, index, packet, parent)
