@@ -24,8 +24,10 @@ nasdaq_equities_orders_ouch_v4_2.fields.accepted_message = ProtoField.new("Accep
 nasdaq_equities_orders_ouch_v4_2.fields.aiq_cancelled_message = ProtoField.new("Aiq Cancelled Message", "nasdaq.equities.orders.ouch.v4.2.aiqcancelledmessage", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.bbo_weight_indicator = ProtoField.new("Bbo Weight Indicator", "nasdaq.equities.orders.ouch.v4.2.bboweightindicator", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.broken_trade_message = ProtoField.new("Broken Trade Message", "nasdaq.equities.orders.ouch.v4.2.brokentrademessage", ftypes.STRING)
+nasdaq_equities_orders_ouch_v4_2.fields.broken_trade_reason = ProtoField.new("Broken Trade Reason", "nasdaq.equities.orders.ouch.v4.2.brokentradereason", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.buy_sell_indicator = ProtoField.new("Buy Sell Indicator", "nasdaq.equities.orders.ouch.v4.2.buysellindicator", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.cancel_order_message = ProtoField.new("Cancel Order Message", "nasdaq.equities.orders.ouch.v4.2.cancelordermessage", ftypes.STRING)
+nasdaq_equities_orders_ouch_v4_2.fields.cancel_order_reason = ProtoField.new("Cancel Order Reason", "nasdaq.equities.orders.ouch.v4.2.cancelorderreason", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.cancel_pending_message = ProtoField.new("Cancel Pending Message", "nasdaq.equities.orders.ouch.v4.2.cancelpendingmessage", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.cancel_reject_message = ProtoField.new("Cancel Reject Message", "nasdaq.equities.orders.ouch.v4.2.cancelrejectmessage", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.canceled_message = ProtoField.new("Canceled Message", "nasdaq.equities.orders.ouch.v4.2.canceledmessage", ftypes.STRING)
@@ -73,6 +75,7 @@ nasdaq_equities_orders_ouch_v4_2.fields.reference_price = ProtoField.new("Refere
 nasdaq_equities_orders_ouch_v4_2.fields.reference_price_type = ProtoField.new("Reference Price Type", "nasdaq.equities.orders.ouch.v4.2.referencepricetype", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.reject_reason_code = ProtoField.new("Reject Reason Code", "nasdaq.equities.orders.ouch.v4.2.rejectreasoncode", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.rejected_order_message = ProtoField.new("Rejected Order Message", "nasdaq.equities.orders.ouch.v4.2.rejectedordermessage", ftypes.STRING)
+nasdaq_equities_orders_ouch_v4_2.fields.rejected_order_reason = ProtoField.new("Rejected Order Reason", "nasdaq.equities.orders.ouch.v4.2.rejectedorderreason", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.replace_order_message = ProtoField.new("Replace Order Message", "nasdaq.equities.orders.ouch.v4.2.replaceordermessage", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.replaced_message = ProtoField.new("Replaced Message", "nasdaq.equities.orders.ouch.v4.2.replacedmessage", ftypes.STRING)
 nasdaq_equities_orders_ouch_v4_2.fields.replacement_order_token = ProtoField.new("Replacement Order Token", "nasdaq.equities.orders.ouch.v4.2.replacementordertoken", ftypes.STRING)
@@ -690,22 +693,22 @@ dissect.cancel_pending_message = function(buffer, offset, packet, parent)
   return dissect.cancel_pending_message_fields(buffer, offset, packet, parent)
 end
 
--- Size: Reason
-size_of.reason = 1
+-- Size: Rejected Order Reason
+size_of.rejected_order_reason = 1
 
--- Display: Reason
-display.reason = function(value)
-  return "Reason: "..value
+-- Display: Rejected Order Reason
+display.rejected_order_reason = function(value)
+  return "Rejected Order Reason: "..value
 end
 
--- Dissect: Reason
-dissect.reason = function(buffer, offset, packet, parent)
-  local length = size_of.reason
+-- Dissect: Rejected Order Reason
+dissect.rejected_order_reason = function(buffer, offset, packet, parent)
+  local length = size_of.rejected_order_reason
   local range = buffer(offset, length)
   local value = range:string()
-  local display = display.reason(value, buffer, offset, packet, parent)
+  local display = display.rejected_order_reason(value, buffer, offset, packet, parent)
 
-  parent:add(nasdaq_equities_orders_ouch_v4_2.fields.reason, range, value, display)
+  parent:add(nasdaq_equities_orders_ouch_v4_2.fields.rejected_order_reason, range, value, display)
 
   return offset + length, value
 end
@@ -718,7 +721,7 @@ size_of.rejected_order_message = function(buffer, offset)
 
   index = index + size_of.order_token
 
-  index = index + size_of.reason
+  index = index + size_of.rejected_order_reason
 
   return index
 end
@@ -738,8 +741,8 @@ dissect.rejected_order_message_fields = function(buffer, offset, packet, parent)
   -- Order Token: 14 Byte Ascii String
   index, order_token = dissect.order_token(buffer, index, packet, parent)
 
-  -- Reason: 1 Byte Ascii String
-  index, reason = dissect.reason(buffer, index, packet, parent)
+  -- Rejected Order Reason: 1 Byte Ascii String
+  index, rejected_order_reason = dissect.rejected_order_reason(buffer, index, packet, parent)
 
   return index
 end
@@ -755,6 +758,26 @@ dissect.rejected_order_message = function(buffer, offset, packet, parent)
   end
 
   return dissect.rejected_order_message_fields(buffer, offset, packet, parent)
+end
+
+-- Size: Reason
+size_of.reason = 1
+
+-- Display: Reason
+display.reason = function(value)
+  return "Reason: "..value
+end
+
+-- Dissect: Reason
+dissect.reason = function(buffer, offset, packet, parent)
+  local length = size_of.reason
+  local range = buffer(offset, length)
+  local value = range:string()
+  local display = display.reason(value, buffer, offset, packet, parent)
+
+  parent:add(nasdaq_equities_orders_ouch_v4_2.fields.reason, range, value, display)
+
+  return offset + length, value
 end
 
 -- Size: Match Number
@@ -782,7 +805,86 @@ size_of.liquidity_flag = 1
 
 -- Display: Liquidity Flag
 display.liquidity_flag = function(value)
-  return "Liquidity Flag: "..value
+  if value == "A" then
+    return "Liquidity Flag: Added (A)"
+  end
+  if value == "R" then
+    return "Liquidity Flag: Removed (R)"
+  end
+  if value == "O" then
+    return "Liquidity Flag: Opening (O)"
+  end
+  if value == "M" then
+    return "Liquidity Flag: Opening Cross (M)"
+  end
+  if value == "C" then
+    return "Liquidity Flag: Closing (C)"
+  end
+  if value == "L" then
+    return "Liquidity Flag: Closing Cross (L)"
+  end
+  if value == "H" then
+    return "Liquidity Flag: Halt Ipo (H)"
+  end
+  if value == "K" then
+    return "Liquidity Flag: Halt (K)"
+  end
+  if value == "J" then
+    return "Liquidity Flag: Nondisplayed (J)"
+  end
+  if value == "W" then
+    return "Liquidity Flag: Added (W)"
+  end
+  if value == "m" then
+    return "Liquidity Flag: Removed (m)"
+  end
+  if value == "k" then
+    return "Liquidity Flag: Added (k)"
+  end
+  if value == "0" then
+    return "Liquidity Flag: Supplemental (0)"
+  end
+  if value == "7" then
+    return "Liquidity Flag: Displayed (7)"
+  end
+  if value == "8" then
+    return "Liquidity Flag: Displayed (8)"
+  end
+  if value == "d" then
+    return "Liquidity Flag: Retail Designated (d)"
+  end
+  if value == "e" then
+    return "Liquidity Flag: Retail Designated (e)"
+  end
+  if value == "f" then
+    return "Liquidity Flag: Retail Designated (f)"
+  end
+  if value == "j" then
+    return "Liquidity Flag: Rpi Retail Price Improving (j)"
+  end
+  if value == "r" then
+    return "Liquidity Flag: Retail Order (r)"
+  end
+  if value == "t" then
+    return "Liquidity Flag: Retail Order (t)"
+  end
+  if value == "4" then
+    return "Liquidity Flag: Added (4)"
+  end
+  if value == "5" then
+    return "Liquidity Flag: Added (5)"
+  end
+  if value == "6" then
+    return "Liquidity Flag: Removed (6)"
+  end
+  if value == "g" then
+    return "Liquidity Flag: Added (g)"
+  end
+  if value == "n" then
+    return "Liquidity Flag: Midpoint (n)"
+  end
+
+  return "Liquidity Flag: Unknown("..value..")"
 end
 
 -- Dissect: Liquidity Flag
@@ -879,7 +981,7 @@ dissect.trade_correction_message_fields = function(buffer, offset, packet, paren
   -- Execution Price: 4 Byte Unsigned Fixed Width Integer
   index, execution_price = dissect.execution_price(buffer, index, packet, parent)
 
-  -- Liquidity Flag: 1 Byte Ascii String
+  -- Liquidity Flag: 1 Byte Ascii String Enum with 26 values
   index, liquidity_flag = dissect.liquidity_flag(buffer, index, packet, parent)
 
   -- Match Number: 8 Byte Unsigned Fixed Width Integer
@@ -988,7 +1090,7 @@ dissect.executed_with_reference_price_message_fields = function(buffer, offset, 
   -- Execution Price: 4 Byte Unsigned Fixed Width Integer
   index, execution_price = dissect.execution_price(buffer, index, packet, parent)
 
-  -- Liquidity Flag: 1 Byte Ascii String
+  -- Liquidity Flag: 1 Byte Ascii String Enum with 26 values
   index, liquidity_flag = dissect.liquidity_flag(buffer, index, packet, parent)
 
   -- Match Number: 8 Byte Unsigned Fixed Width Integer
@@ -1016,6 +1118,26 @@ dissect.executed_with_reference_price_message = function(buffer, offset, packet,
   return dissect.executed_with_reference_price_message_fields(buffer, offset, packet, parent)
 end
 
+-- Size: Broken Trade Reason
+size_of.broken_trade_reason = 1
+
+-- Display: Broken Trade Reason
+display.broken_trade_reason = function(value)
+  return "Broken Trade Reason: "..value
+end
+
+-- Dissect: Broken Trade Reason
+dissect.broken_trade_reason = function(buffer, offset, packet, parent)
+  local length = size_of.broken_trade_reason
+  local range = buffer(offset, length)
+  local value = range:string()
+  local display = display.broken_trade_reason(value, buffer, offset, packet, parent)
+
+  parent:add(nasdaq_equities_orders_ouch_v4_2.fields.broken_trade_reason, range, value, display)
+
+  return offset + length, value
+end
+
 -- Calculate size of: Broken Trade Message
 size_of.broken_trade_message = function(buffer, offset)
   local index = 0
@@ -1026,7 +1148,7 @@ size_of.broken_trade_message = function(buffer, offset)
 
   index = index + size_of.match_number
 
-  index = index + size_of.reason
+  index = index + size_of.broken_trade_reason
 
   return index
 end
@@ -1049,8 +1171,8 @@ dissect.broken_trade_message_fields = function(buffer, offset, packet, parent)
   -- Match Number: 8 Byte Unsigned Fixed Width Integer
   index, match_number = dissect.match_number(buffer, index, packet, parent)
 
-  -- Reason: 1 Byte Ascii String
-  index, reason = dissect.reason(buffer, index, packet, parent)
+  -- Broken Trade Reason: 1 Byte Ascii String
+  index, broken_trade_reason = dissect.broken_trade_reason(buffer, index, packet, parent)
 
   return index
 end
@@ -1108,7 +1230,7 @@ dissect.executed_message_fields = function(buffer, offset, packet, parent)
   -- Execution Price: 4 Byte Unsigned Fixed Width Integer
   index, execution_price = dissect.execution_price(buffer, index, packet, parent)
 
-  -- Liquidity Flag: 1 Byte Ascii String
+  -- Liquidity Flag: 1 Byte Ascii String Enum with 26 values
   index, liquidity_flag = dissect.liquidity_flag(buffer, index, packet, parent)
 
   -- Match Number: 8 Byte Unsigned Fixed Width Integer
@@ -1150,6 +1272,69 @@ dissect.quantity_prevented_from_trading = function(buffer, offset, packet, paren
   return offset + length, value
 end
 
+-- Size: Cancel Order Reason
+size_of.cancel_order_reason = 1
+
+-- Display: Cancel Order Reason
+display.cancel_order_reason = function(value)
+  if value == "U" then
+    return "Cancel Order Reason: User Requested Cancel (U)"
+  end
+  if value == "I" then
+    return "Cancel Order Reason: Immediate Or Cancel Order (I)"
+  end
+  if value == "T" then
+    return "Cancel Order Reason: Timeout (T)"
+  end
+  if value == "S" then
+    return "Cancel Order Reason: Supervisory (S)"
+  end
+  if value == "D" then
+    return "Cancel Order Reason: This Order Cannot Be Executed Because Of A Regulatory Restriction (D)"
+  end
+  if value == "Q" then
+    return "Cancel Order Reason: Self Match Prevention (Q)"
+  end
+  if value == "Z" then
+    return "Cancel Order Reason: System Cancel (Z)"
+  end
+  if value == "C" then
+    return "Cancel Order Reason: Cross Canceled (C)"
+  end
+  if value == "K" then
+    return "Cancel Order Reason: This Order Cannot Be Executed (K)"
+  end
+  if value == "H" then
+    return "Cancel Order Reason: Halted (H)"
+  end
+  if value == "X" then
+    return "Cancel Order Reason: Open Protection (X)"
+  end
+  if value == "E" then
+    return "Cancel Order Reason: Closed (E)"
+  end
+  if value == "F" then
+    return "Cancel Order Reason: Post Only Cancel (F)"
+  end
+  if value == "G" then
+    return "Cancel Order Reason: Post Only Cancel (G)"
+  end
+
+  return "Cancel Order Reason: Unknown("..value..")"
+end
+
+-- Dissect: Cancel Order Reason
+dissect.cancel_order_reason = function(buffer, offset, packet, parent)
+  local length = size_of.cancel_order_reason
+  local range = buffer(offset, length)
+  local value = range:string()
+  local display = display.cancel_order_reason(value, buffer, offset, packet, parent)
+
+  parent:add(nasdaq_equities_orders_ouch_v4_2.fields.cancel_order_reason, range, value, display)
+
+  return offset + length, value
+end
+
 -- Size: Decrement Shares
 size_of.decrement_shares = 4
 
@@ -1180,7 +1365,7 @@ size_of.aiq_cancelled_message = function(buffer, offset)
 
   index = index + size_of.decrement_shares
 
-  index = index + size_of.reason
+  index = index + size_of.cancel_order_reason
 
   index = index + size_of.quantity_prevented_from_trading
 
@@ -1209,8 +1394,8 @@ dissect.aiq_cancelled_message_fields = function(buffer, offset, packet, parent)
   -- Decrement Shares: 4 Byte Unsigned Fixed Width Integer
   index, decrement_shares = dissect.decrement_shares(buffer, index, packet, parent)
 
-  -- Reason: 1 Byte Ascii String
-  index, reason = dissect.reason(buffer, index, packet, parent)
+  -- Cancel Order Reason: 1 Byte Ascii String Enum with 14 values
+  index, cancel_order_reason = dissect.cancel_order_reason(buffer, index, packet, parent)
 
   -- Quantity Prevented From Trading: 4 Byte Unsigned Fixed Width Integer
   index, quantity_prevented_from_trading = dissect.quantity_prevented_from_trading(buffer, index, packet, parent)
@@ -1218,7 +1403,7 @@ dissect.aiq_cancelled_message_fields = function(buffer, offset, packet, parent)
   -- Execution Price: 4 Byte Unsigned Fixed Width Integer
   index, execution_price = dissect.execution_price(buffer, index, packet, parent)
 
-  -- Liquidity Flag: 1 Byte Ascii String
+  -- Liquidity Flag: 1 Byte Ascii String Enum with 26 values
   index, liquidity_flag = dissect.liquidity_flag(buffer, index, packet, parent)
 
   return index
@@ -1247,7 +1432,7 @@ size_of.canceled_message = function(buffer, offset)
 
   index = index + size_of.decrement_shares
 
-  index = index + size_of.reason
+  index = index + size_of.cancel_order_reason
 
   return index
 end
@@ -1270,8 +1455,8 @@ dissect.canceled_message_fields = function(buffer, offset, packet, parent)
   -- Decrement Shares: 4 Byte Unsigned Fixed Width Integer
   index, decrement_shares = dissect.decrement_shares(buffer, index, packet, parent)
 
-  -- Reason: 1 Byte Ascii String
-  index, reason = dissect.reason(buffer, index, packet, parent)
+  -- Cancel Order Reason: 1 Byte Ascii String Enum with 14 values
+  index, cancel_order_reason = dissect.cancel_order_reason(buffer, index, packet, parent)
 
   return index
 end
@@ -2107,6 +2292,9 @@ display.customer_type = function(value)
   if value == "N" then
     return "Customer Type: Not A Retail Designated (N)"
   end
+  if value == " " then
+    return "Customer Type: Default (<whitespace>)"
+  end
 
   return "Customer Type: Unknown("..value..")"
 end
@@ -2201,7 +2389,7 @@ dissect.enter_order_message_fields = function(buffer, offset, packet, parent)
   -- Cross Type: 1 Byte Ascii String Enum with 7 values
   index, cross_type = dissect.cross_type(buffer, index, packet, parent)
 
-  -- Customer Type: 1 Byte Ascii String Enum with 2 values
+  -- Customer Type: 1 Byte Ascii String Enum with 3 values
   index, customer_type = dissect.customer_type(buffer, index, packet, parent)
 
   return index
@@ -3132,27 +3320,13 @@ dissect.packet_header = function(buffer, offset, packet, parent)
   return dissect.packet_header_fields(buffer, offset, packet, parent)
 end
 
--- Calculate size of: Soup Bin Tcp Packet
-size_of.soup_bin_tcp_packet = function(buffer, offset)
-  local index = 0
-
-  index = index + size_of.packet_header(buffer, offset + index)
-
-  -- Calculate runtime size of Payload field
-  local payload_offset = offset + index
-  local payload_type = buffer(payload_offset - 1, 1):string()
-  index = index + size_of.payload(buffer, payload_offset, payload_type)
-
-  return index
-end
-
 -- Display: Soup Bin Tcp Packet
 display.soup_bin_tcp_packet = function(buffer, offset, size, packet, parent)
   return ""
 end
 
 -- Dissect Fields: Soup Bin Tcp Packet
-dissect.soup_bin_tcp_packet_fields = function(buffer, offset, packet, parent)
+dissect.soup_bin_tcp_packet_fields = function(buffer, offset, packet, parent, size_of_soup_bin_tcp_packet)
   local index = offset
 
   -- Packet Header: Struct of 2 fields
@@ -3168,16 +3342,17 @@ dissect.soup_bin_tcp_packet_fields = function(buffer, offset, packet, parent)
 end
 
 -- Dissect: Soup Bin Tcp Packet
-dissect.soup_bin_tcp_packet = function(buffer, offset, packet, parent)
-  -- Optionally add dynamic struct element to protocol tree
+dissect.soup_bin_tcp_packet = function(buffer, offset, packet, parent, size_of_soup_bin_tcp_packet)
+  -- Optionally add struct element to protocol tree
   if show.soup_bin_tcp_packet then
-    local length = size_of.soup_bin_tcp_packet(buffer, offset)
-    local range = buffer(offset, length)
+    local range = buffer(offset, size_of_soup_bin_tcp_packet)
     local display = display.soup_bin_tcp_packet(buffer, packet, parent)
     parent = parent:add(nasdaq_equities_orders_ouch_v4_2.fields.soup_bin_tcp_packet, range, display)
   end
 
-  return dissect.soup_bin_tcp_packet_fields(buffer, offset, packet, parent)
+  dissect.soup_bin_tcp_packet_fields(buffer, offset, packet, parent, size_of_soup_bin_tcp_packet)
+
+  return offset + size_of_soup_bin_tcp_packet
 end
 
 -- Remaining Bytes For: Soup Bin Tcp Packet
@@ -3198,7 +3373,7 @@ local soup_bin_tcp_packet_bytes_remaining = function(buffer, index, available)
     return -(current - remaining)
   end
 
-  return remaining
+  return remaining, current
 end
 
 -- Dissect Packet
@@ -3211,13 +3386,13 @@ dissect.packet = function(buffer, packet, parent)
   -- Soup Bin Tcp Packet: Struct of 2 fields
   while index < end_of_payload do
 
-    -- are minimum number of bytes are available?
-    local available = soup_bin_tcp_packet_bytes_remaining(buffer, index, end_of_payload)
+    -- Are minimum number of bytes are available?
+    local available, size_of_soup_bin_tcp_packet = soup_bin_tcp_packet_bytes_remaining(buffer, index, end_of_payload)
 
     if available > 0 then
-      index = dissect.soup_bin_tcp_packet(buffer, index, packet, parent)
+      index = dissect.soup_bin_tcp_packet(buffer, index, packet, parent, size_of_soup_bin_tcp_packet)
     else
-      -- more bytes needed, so set packet information
+      -- More bytes needed, so set packet information
       packet.desegment_offset = index
       packet.desegment_len = -(available)
 

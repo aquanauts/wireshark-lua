@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  tshark-end-to-end-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update Operating System
+        run: sudo apt-get update
+
+      - name: Install tshark
+        run: sudo apt-get install -y tshark
+
+      - name: Set Environment Variables
+        run: export PATH=/usr/local/bin:$PATH
+
+      - name: Clone Omi Data
+        run: git clone --depth=1 https://github.com/Open-Markets-Initiative/Data.git
+
+      - name: Run Dissector Tests
+        run: bash -x Test.sh
+
+

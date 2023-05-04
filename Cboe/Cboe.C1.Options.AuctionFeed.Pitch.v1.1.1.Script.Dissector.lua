@@ -14,6 +14,7 @@ local display = {}
 local dissect = {}
 local size_of = {}
 local verify = {}
+local translate = {}
 
 -----------------------------------------------------------------------
 -- Declare Protocol Fields
@@ -24,7 +25,7 @@ cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_cancel_message = ProtoFi
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_end_offset = ProtoField.new("Auction End Offset", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctionendoffset", ftypes.UINT32)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_id = ProtoField.new("Auction Id", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctionid", ftypes.UINT64)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_notification_message = ProtoField.new("Auction Notification Message", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctionnotificationmessage", ftypes.STRING)
-cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_only_price = ProtoField.new("Auction Only Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctiononlyprice", ftypes.UINT64)
+cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_only_price = ProtoField.new("Auction Only Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctiononlyprice", ftypes.DOUBLE)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_summary_message = ProtoField.new("Auction Summary Message", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctionsummarymessage", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_trade_message = ProtoField.new("Auction Trade Message", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctiontrademessage", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_type = ProtoField.new("Auction Type", "cboe.c1.options.auctionfeed.pitch.v1.1.1.auctiontype", ftypes.STRING)
@@ -37,13 +38,13 @@ cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.customer_indicator = ProtoField.
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.end_of_session_message = ProtoField.new("End Of Session Message", "cboe.c1.options.auctionfeed.pitch.v1.1.1.endofsessionmessage", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.execution_id = ProtoField.new("Execution Id", "cboe.c1.options.auctionfeed.pitch.v1.1.1.executionid", ftypes.UINT64)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.feed_symbol = ProtoField.new("Feed Symbol", "cboe.c1.options.auctionfeed.pitch.v1.1.1.feedsymbol", ftypes.STRING)
-cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.indicative_price = ProtoField.new("Indicative Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.indicativeprice", ftypes.UINT64)
+cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.indicative_price = ProtoField.new("Indicative Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.indicativeprice", ftypes.DOUBLE)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.length = ProtoField.new("Length", "cboe.c1.options.auctionfeed.pitch.v1.1.1.length", ftypes.UINT16)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.message = ProtoField.new("Message", "cboe.c1.options.auctionfeed.pitch.v1.1.1.message", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.message_header = ProtoField.new("Message Header", "cboe.c1.options.auctionfeed.pitch.v1.1.1.messageheader", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.message_length = ProtoField.new("Message Length", "cboe.c1.options.auctionfeed.pitch.v1.1.1.messagelength", ftypes.UINT8)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.message_type = ProtoField.new("Message Type", "cboe.c1.options.auctionfeed.pitch.v1.1.1.messagetype", ftypes.UINT8)
-cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.multiplier = ProtoField.new("Multiplier", "cboe.c1.options.auctionfeed.pitch.v1.1.1.multiplier", ftypes.UINT32)
+cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.multiplier = ProtoField.new("Multiplier", "cboe.c1.options.auctionfeed.pitch.v1.1.1.multiplier", ftypes.DOUBLE)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.opening_condition = ProtoField.new("Opening Condition", "cboe.c1.options.auctionfeed.pitch.v1.1.1.openingcondition", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.opening_type = ProtoField.new("Opening Type", "cboe.c1.options.auctionfeed.pitch.v1.1.1.openingtype", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.osi_symbol = ProtoField.new("Osi Symbol", "cboe.c1.options.auctionfeed.pitch.v1.1.1.osisymbol", ftypes.STRING)
@@ -51,15 +52,15 @@ cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.packet = ProtoField.new("Packet"
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.packet_header = ProtoField.new("Packet Header", "cboe.c1.options.auctionfeed.pitch.v1.1.1.packetheader", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.participant_id = ProtoField.new("Participant Id", "cboe.c1.options.auctionfeed.pitch.v1.1.1.participantid", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.payload = ProtoField.new("Payload", "cboe.c1.options.auctionfeed.pitch.v1.1.1.payload", ftypes.STRING)
-cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.price = ProtoField.new("Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.price", ftypes.UINT64)
+cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.price = ProtoField.new("Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.price", ftypes.DOUBLE)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.quantity = ProtoField.new("Quantity", "cboe.c1.options.auctionfeed.pitch.v1.1.1.quantity", ftypes.UINT32)
-cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.reference_price = ProtoField.new("Reference Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.referenceprice", ftypes.UINT64)
+cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.reference_price = ProtoField.new("Reference Price", "cboe.c1.options.auctionfeed.pitch.v1.1.1.referenceprice", ftypes.DOUBLE)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.sell_contracts = ProtoField.new("Sell Contracts", "cboe.c1.options.auctionfeed.pitch.v1.1.1.sellcontracts", ftypes.UINT32)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.sequence = ProtoField.new("Sequence", "cboe.c1.options.auctionfeed.pitch.v1.1.1.sequence", ftypes.UINT32)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.side = ProtoField.new("Side", "cboe.c1.options.auctionfeed.pitch.v1.1.1.side", ftypes.STRING)
-cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_6 = ProtoField.new("Symbol 6", "cboe.c1.options.auctionfeed.pitch.v1.1.1.symbol6", ftypes.STRING)
-cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_8 = ProtoField.new("Symbol 8", "cboe.c1.options.auctionfeed.pitch.v1.1.1.symbol8", ftypes.STRING)
+cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol = ProtoField.new("Symbol", "cboe.c1.options.auctionfeed.pitch.v1.1.1.symbol", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_condition = ProtoField.new("Symbol Condition", "cboe.c1.options.auctionfeed.pitch.v1.1.1.symbolcondition", ftypes.STRING)
+cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_extended = ProtoField.new("Symbol Extended", "cboe.c1.options.auctionfeed.pitch.v1.1.1.symbolextended", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_mapping_message = ProtoField.new("Symbol Mapping Message", "cboe.c1.options.auctionfeed.pitch.v1.1.1.symbolmappingmessage", ftypes.STRING)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.time = ProtoField.new("Time", "cboe.c1.options.auctionfeed.pitch.v1.1.1.time", ftypes.UINT32)
 cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.time_message = ProtoField.new("Time Message", "cboe.c1.options.auctionfeed.pitch.v1.1.1.timemessage", ftypes.STRING)
@@ -390,11 +391,17 @@ display.multiplier = function(value)
   return "Multiplier: "..value
 end
 
+-- Translate: Multiplier
+translate.multiplier = function(raw)
+  return raw*10
+end
+
 -- Dissect: Multiplier
 dissect.multiplier = function(buffer, offset, packet, parent)
   local length = size_of.multiplier
   local range = buffer(offset, length)
-  local value = range:le_uint()
+  local raw = range:le_uint()
+  local value = translate.multiplier(raw)
   local display = display.multiplier(value, buffer, offset, packet, parent)
 
   parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.multiplier, range, value, display)
@@ -529,11 +536,17 @@ display.price = function(value)
   return "Price: "..value
 end
 
+-- Translate: Price
+translate.price = function(raw)
+  return raw:tonumber()*10000
+end
+
 -- Dissect: Price
 dissect.price = function(buffer, offset, packet, parent)
   local length = size_of.price
   local range = buffer(offset, length)
-  local value = range:le_uint64()
+  local raw = range:le_uint64()
+  local value = translate.price(raw)
   local display = display.price(value, buffer, offset, packet, parent)
 
   parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.price, range, value, display)
@@ -574,22 +587,22 @@ dissect.opening_type = function(buffer, offset, packet, parent)
   return offset + length, value
 end
 
--- Size: Symbol 8
-size_of.symbol_8 = 8
+-- Size: Symbol Extended
+size_of.symbol_extended = 8
 
--- Display: Symbol 8
-display.symbol_8 = function(value)
-  return "Symbol 8: "..value
+-- Display: Symbol Extended
+display.symbol_extended = function(value)
+  return "Symbol Extended: "..value
 end
 
--- Dissect: Symbol 8
-dissect.symbol_8 = function(buffer, offset, packet, parent)
-  local length = size_of.symbol_8
+-- Dissect: Symbol Extended
+dissect.symbol_extended = function(buffer, offset, packet, parent)
+  local length = size_of.symbol_extended
   local range = buffer(offset, length)
   local value = range:string()
-  local display = display.symbol_8(value, buffer, offset, packet, parent)
+  local display = display.symbol_extended(value, buffer, offset, packet, parent)
 
-  parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_8, range, value, display)
+  parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_extended, range, value, display)
 
   return offset + length, value
 end
@@ -600,7 +613,7 @@ size_of.auction_summary_message = function(buffer, offset)
 
   index = index + size_of.time_offset
 
-  index = index + size_of.symbol_8
+  index = index + size_of.symbol_extended
 
   index = index + size_of.opening_type
 
@@ -623,8 +636,8 @@ dissect.auction_summary_message_fields = function(buffer, offset, packet, parent
   -- Time Offset: 4 Byte Unsigned Fixed Width Integer
   index, time_offset = dissect.time_offset(buffer, index, packet, parent)
 
-  -- Symbol 8: 8 Byte Ascii String
-  index, symbol_8 = dissect.symbol_8(buffer, index, packet, parent)
+  -- Symbol Extended: 8 Byte Ascii String
+  index, symbol_extended = dissect.symbol_extended(buffer, index, packet, parent)
 
   -- Opening Type: 1 Byte Ascii String Enum with 4 values
   index, opening_type = dissect.opening_type(buffer, index, packet, parent)
@@ -679,11 +692,17 @@ display.auction_only_price = function(value)
   return "Auction Only Price: "..value
 end
 
+-- Translate: Auction Only Price
+translate.auction_only_price = function(raw)
+  return raw:tonumber()*10000
+end
+
 -- Dissect: Auction Only Price
 dissect.auction_only_price = function(buffer, offset, packet, parent)
   local length = size_of.auction_only_price
   local range = buffer(offset, length)
-  local value = range:le_uint64()
+  local raw = range:le_uint64()
+  local value = translate.auction_only_price(raw)
   local display = display.auction_only_price(value, buffer, offset, packet, parent)
 
   parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.auction_only_price, range, value, display)
@@ -699,11 +718,17 @@ display.indicative_price = function(value)
   return "Indicative Price: "..value
 end
 
+-- Translate: Indicative Price
+translate.indicative_price = function(raw)
+  return raw:tonumber()*10000
+end
+
 -- Dissect: Indicative Price
 dissect.indicative_price = function(buffer, offset, packet, parent)
   local length = size_of.indicative_price
   local range = buffer(offset, length)
-  local value = range:le_uint64()
+  local raw = range:le_uint64()
+  local value = translate.indicative_price(raw)
   local display = display.indicative_price(value, buffer, offset, packet, parent)
 
   parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.indicative_price, range, value, display)
@@ -759,11 +784,17 @@ display.reference_price = function(value)
   return "Reference Price: "..value
 end
 
+-- Translate: Reference Price
+translate.reference_price = function(raw)
+  return raw:tonumber()*10000
+end
+
 -- Dissect: Reference Price
 dissect.reference_price = function(buffer, offset, packet, parent)
   local length = size_of.reference_price
   local range = buffer(offset, length)
-  local value = range:le_uint64()
+  local raw = range:le_uint64()
+  local value = translate.reference_price(raw)
   local display = display.reference_price(value, buffer, offset, packet, parent)
 
   parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.reference_price, range, value, display)
@@ -777,7 +808,7 @@ size_of.auction_update_message = function(buffer, offset)
 
   index = index + size_of.time_offset
 
-  index = index + size_of.symbol_8
+  index = index + size_of.symbol_extended
 
   index = index + size_of.opening_type
 
@@ -808,8 +839,8 @@ dissect.auction_update_message_fields = function(buffer, offset, packet, parent)
   -- Time Offset: 4 Byte Unsigned Fixed Width Integer
   index, time_offset = dissect.time_offset(buffer, index, packet, parent)
 
-  -- Symbol 8: 8 Byte Ascii String
-  index, symbol_8 = dissect.symbol_8(buffer, index, packet, parent)
+  -- Symbol Extended: 8 Byte Ascii String
+  index, symbol_extended = dissect.symbol_extended(buffer, index, packet, parent)
 
   -- Opening Type: 1 Byte Ascii String Enum with 4 values
   index, opening_type = dissect.opening_type(buffer, index, packet, parent)
@@ -1154,22 +1185,22 @@ dissect.auction_type = function(buffer, offset, packet, parent)
   return offset + length, value
 end
 
--- Size: Symbol 6
-size_of.symbol_6 = 6
+-- Size: Symbol
+size_of.symbol = 6
 
--- Display: Symbol 6
-display.symbol_6 = function(value)
-  return "Symbol 6: "..value
+-- Display: Symbol
+display.symbol = function(value)
+  return "Symbol: "..value
 end
 
--- Dissect: Symbol 6
-dissect.symbol_6 = function(buffer, offset, packet, parent)
-  local length = size_of.symbol_6
+-- Dissect: Symbol
+dissect.symbol = function(buffer, offset, packet, parent)
+  local length = size_of.symbol
   local range = buffer(offset, length)
   local value = range:string()
-  local display = display.symbol_6(value, buffer, offset, packet, parent)
+  local display = display.symbol(value, buffer, offset, packet, parent)
 
-  parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol_6, range, value, display)
+  parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.symbol, range, value, display)
 
   return offset + length, value
 end
@@ -1180,7 +1211,7 @@ size_of.auction_notification_message = function(buffer, offset)
 
   index = index + size_of.time_offset
 
-  index = index + size_of.symbol_6
+  index = index + size_of.symbol
 
   index = index + size_of.auction_id
 
@@ -1215,8 +1246,8 @@ dissect.auction_notification_message_fields = function(buffer, offset, packet, p
   -- Time Offset: 4 Byte Unsigned Fixed Width Integer
   index, time_offset = dissect.time_offset(buffer, index, packet, parent)
 
-  -- Symbol 6: 6 Byte Ascii String
-  index, symbol_6 = dissect.symbol_6(buffer, index, packet, parent)
+  -- Symbol: 6 Byte Ascii String
+  index, symbol = dissect.symbol(buffer, index, packet, parent)
 
   -- Auction Id: 8 Byte Unsigned Fixed Width Integer
   index, auction_id = dissect.auction_id(buffer, index, packet, parent)
@@ -1585,27 +1616,13 @@ dissect.message_header = function(buffer, offset, packet, parent)
   return dissect.message_header_fields(buffer, offset, packet, parent)
 end
 
--- Calculate size of: Message
-size_of.message = function(buffer, offset)
-  local index = 0
-
-  index = index + size_of.message_header(buffer, offset + index)
-
-  -- Calculate runtime size of Payload field
-  local payload_offset = offset + index
-  local payload_type = buffer(payload_offset - 1, 1):le_uint()
-  index = index + size_of.payload(buffer, payload_offset, payload_type)
-
-  return index
-end
-
 -- Display: Message
 display.message = function(buffer, offset, size, packet, parent)
   return ""
 end
 
 -- Dissect Fields: Message
-dissect.message_fields = function(buffer, offset, packet, parent)
+dissect.message_fields = function(buffer, offset, packet, parent, size_of_message)
   local index = offset
 
   -- Message Header: Struct of 2 fields
@@ -1621,16 +1638,17 @@ dissect.message_fields = function(buffer, offset, packet, parent)
 end
 
 -- Dissect: Message
-dissect.message = function(buffer, offset, packet, parent)
-  -- Optionally add dynamic struct element to protocol tree
+dissect.message = function(buffer, offset, packet, parent, size_of_message)
+  -- Optionally add struct element to protocol tree
   if show.message then
-    local length = size_of.message(buffer, offset)
-    local range = buffer(offset, length)
+    local range = buffer(offset, size_of_message)
     local display = display.message(buffer, packet, parent)
     parent = parent:add(cboe_c1_options_auctionfeed_pitch_v1_1_1.fields.message, range, display)
   end
 
-  return dissect.message_fields(buffer, offset, packet, parent)
+  dissect.message_fields(buffer, offset, packet, parent, size_of_message)
+
+  return offset + size_of_message
 end
 
 -- Size: Sequence
@@ -1777,7 +1795,12 @@ dissect.packet = function(buffer, packet, parent)
 
   -- Message: Struct of 2 fields
   while index < end_of_payload do
-    index = dissect.message(buffer, index, packet, parent)
+
+    -- Dependency element: Message Length
+    local message_length = buffer(index, 1):le_uint()
+
+    -- Message: Struct of 2 fields
+    index = dissect.message(buffer, index, packet, parent, message_length)
   end
 
   return index

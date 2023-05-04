@@ -14,6 +14,7 @@ local display = {}
 local dissect = {}
 local size_of = {}
 local verify = {}
+local translate = {}
 
 -----------------------------------------------------------------------
 -- Declare Protocol Fields
@@ -33,7 +34,7 @@ cme_futures_streamlined_sbe_v5_8.fields.binary_packet_header = ProtoField.new("B
 cme_futures_streamlined_sbe_v5_8.fields.block_length = ProtoField.new("Block Length", "cme.futures.streamlined.sbe.v5.8.blocklength", ftypes.UINT16)
 cme_futures_streamlined_sbe_v5_8.fields.cal_fut_px = ProtoField.new("Cal Fut Px", "cme.futures.streamlined.sbe.v5.8.calfutpx", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.cal_fut_px_optional = ProtoField.new("Cal Fut Px Optional", "cme.futures.streamlined.sbe.v5.8.calfutpxoptional", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.coupon_rate = ProtoField.new("Coupon Rate", "cme.futures.streamlined.sbe.v5.8.couponrate", ftypes.INT32)
+cme_futures_streamlined_sbe_v5_8.fields.coupon_rate = ProtoField.new("Coupon Rate", "cme.futures.streamlined.sbe.v5.8.couponrate", ftypes.DOUBLE)
 cme_futures_streamlined_sbe_v5_8.fields.coupon_rate_optional = ProtoField.new("Coupon Rate Optional", "cme.futures.streamlined.sbe.v5.8.couponrateoptional", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.currency = ProtoField.new("Currency", "cme.futures.streamlined.sbe.v5.8.currency", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.d_v_01 = ProtoField.new("D V 01", "cme.futures.streamlined.sbe.v5.8.dv01", ftypes.STRING)
@@ -115,7 +116,7 @@ cme_futures_streamlined_sbe_v5_8.fields.md_entry_id = ProtoField.new("Md Entry I
 cme_futures_streamlined_sbe_v5_8.fields.md_entry_position_no = ProtoField.new("Md Entry Position No", "cme.futures.streamlined.sbe.v5.8.mdentrypositionno", ftypes.INT32)
 cme_futures_streamlined_sbe_v5_8.fields.md_entry_px_decimal = ProtoField.new("Md Entry Px Decimal", "cme.futures.streamlined.sbe.v5.8.mdentrypxdecimal", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_entry_px_decimal_optional = ProtoField.new("Md Entry Px Decimal Optional", "cme.futures.streamlined.sbe.v5.8.mdentrypxdecimaloptional", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.md_entry_px_optional = ProtoField.new("Md Entry Px Optional", "cme.futures.streamlined.sbe.v5.8.mdentrypxoptional", ftypes.INT64)
+cme_futures_streamlined_sbe_v5_8.fields.md_entry_px_optional = ProtoField.new("Md Entry Px Optional", "cme.futures.streamlined.sbe.v5.8.mdentrypxoptional", ftypes.DOUBLE)
 cme_futures_streamlined_sbe_v5_8.fields.md_entry_size = ProtoField.new("Md Entry Size", "cme.futures.streamlined.sbe.v5.8.mdentrysize", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_entry_size_optional = ProtoField.new("Md Entry Size Optional", "cme.futures.streamlined.sbe.v5.8.mdentrysizeoptional", ftypes.UINT64)
 cme_futures_streamlined_sbe_v5_8.fields.md_entry_time = ProtoField.new("Md Entry Time", "cme.futures.streamlined.sbe.v5.8.mdentrytime", ftypes.INT32)
@@ -123,13 +124,13 @@ cme_futures_streamlined_sbe_v5_8.fields.md_entry_type = ProtoField.new("Md Entry
 cme_futures_streamlined_sbe_v5_8.fields.md_entry_type_indices = ProtoField.new("Md Entry Type Indices", "cme.futures.streamlined.sbe.v5.8.mdentrytypeindices", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_feed_type = ProtoField.new("Md Feed Type", "cme.futures.streamlined.sbe.v5.8.mdfeedtype", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_feed_type_3 = ProtoField.new("Md Feed Type 3", "cme.futures.streamlined.sbe.v5.8.mdfeedtype3", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris_351 = ProtoField.new("Md Incremental Refresh Eris 351", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefresheris351", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris_353 = ProtoField.new("Md Incremental Refresh Eris 353", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefresheris353", ftypes.STRING)
+cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris = ProtoField.new("Md Incremental Refresh Eris", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefresheris", ftypes.STRING)
+cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris_no_quote = ProtoField.new("Md Incremental Refresh Eris No Quote", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefresherisnoquote", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris_reference_data_and_daily_statistics = ProtoField.new("Md Incremental Refresh Eris Reference Data And Daily Statistics", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefresherisreferencedataanddailystatistics", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_indices = ProtoField.new("Md Incremental Refresh Indices", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefreshindices", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_otc = ProtoField.new("Md Incremental Refresh Otc", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefreshotc", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks_340 = ProtoField.new("Md Incremental Refresh Trade Blocks 340", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefreshtradeblocks340", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks_349 = ProtoField.new("Md Incremental Refresh Trade Blocks 349", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefreshtradeblocks349", ftypes.STRING)
+cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks = ProtoField.new("Md Incremental Refresh Trade Blocks", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefreshtradeblocks", ftypes.STRING)
+cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks_no_date = ProtoField.new("Md Incremental Refresh Trade Blocks No Date", "cme.futures.streamlined.sbe.v5.8.mdincrementalrefreshtradeblocksnodate", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_instrument_definition_eris = ProtoField.new("Md Instrument Definition Eris", "cme.futures.streamlined.sbe.v5.8.mdinstrumentdefinitioneris", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_instrument_definition_indices = ProtoField.new("Md Instrument Definition Indices", "cme.futures.streamlined.sbe.v5.8.mdinstrumentdefinitionindices", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.md_news_indices = ProtoField.new("Md News Indices", "cme.futures.streamlined.sbe.v5.8.mdnewsindices", ftypes.STRING)
@@ -150,7 +151,7 @@ cme_futures_streamlined_sbe_v5_8.fields.next_fixed_payment_date = ProtoField.new
 cme_futures_streamlined_sbe_v5_8.fields.next_floating_payment_amount = ProtoField.new("Next Floating Payment Amount", "cme.futures.streamlined.sbe.v5.8.nextfloatingpaymentamount", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.next_floating_payment_date = ProtoField.new("Next Floating Payment Date", "cme.futures.streamlined.sbe.v5.8.nextfloatingpaymentdate", ftypes.UINT16)
 cme_futures_streamlined_sbe_v5_8.fields.nominal = ProtoField.new("Nominal", "cme.futures.streamlined.sbe.v5.8.nominal", ftypes.UINT64)
-cme_futures_streamlined_sbe_v5_8.fields.notional_percentage_outstanding = ProtoField.new("Notional Percentage Outstanding", "cme.futures.streamlined.sbe.v5.8.notionalpercentageoutstanding", ftypes.INT32)
+cme_futures_streamlined_sbe_v5_8.fields.notional_percentage_outstanding = ProtoField.new("Notional Percentage Outstanding", "cme.futures.streamlined.sbe.v5.8.notionalpercentageoutstanding", ftypes.DOUBLE)
 cme_futures_streamlined_sbe_v5_8.fields.npv = ProtoField.new("Npv", "cme.futures.streamlined.sbe.v5.8.npv", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.null_value = ProtoField.new("Null Value", "cme.futures.streamlined.sbe.v5.8.nullvalue", ftypes.UINT8, {[1]="Yes",[0]="No"}, base.DEC, "0x80")
 cme_futures_streamlined_sbe_v5_8.fields.num_in_group_16 = ProtoField.new("Num In Group 16", "cme.futures.streamlined.sbe.v5.8.numingroup16", ftypes.UINT16)
@@ -208,7 +209,7 @@ cme_futures_streamlined_sbe_v5_8.fields.settl_date = ProtoField.new("Settl Date"
 cme_futures_streamlined_sbe_v5_8.fields.settl_price_type = ProtoField.new("Settl Price Type", "cme.futures.streamlined.sbe.v5.8.settlpricetype", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.settlement_npv = ProtoField.new("Settlement Npv", "cme.futures.streamlined.sbe.v5.8.settlementnpv", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.strategy_link_id = ProtoField.new("Strategy Link Id", "cme.futures.streamlined.sbe.v5.8.strategylinkid", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.strike_price = ProtoField.new("Strike Price", "cme.futures.streamlined.sbe.v5.8.strikeprice", ftypes.INT64)
+cme_futures_streamlined_sbe_v5_8.fields.strike_price = ProtoField.new("Strike Price", "cme.futures.streamlined.sbe.v5.8.strikeprice", ftypes.DOUBLE)
 cme_futures_streamlined_sbe_v5_8.fields.strike_price_decimal = ProtoField.new("Strike Price Decimal", "cme.futures.streamlined.sbe.v5.8.strikepricedecimal", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.symbol = ProtoField.new("Symbol", "cme.futures.streamlined.sbe.v5.8.symbol", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.template_id = ProtoField.new("Template Id", "cme.futures.streamlined.sbe.v5.8.templateid", ftypes.UINT16)
@@ -224,7 +225,7 @@ cme_futures_streamlined_sbe_v5_8.fields.unit_of_measure = ProtoField.new("Unit O
 cme_futures_streamlined_sbe_v5_8.fields.unit_of_measure_currency = ProtoField.new("Unit Of Measure Currency", "cme.futures.streamlined.sbe.v5.8.unitofmeasurecurrency", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.unit_of_measure_currency_3 = ProtoField.new("Unit Of Measure Currency 3", "cme.futures.streamlined.sbe.v5.8.unitofmeasurecurrency3", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.unit_of_measure_qty_decimal = ProtoField.new("Unit Of Measure Qty Decimal", "cme.futures.streamlined.sbe.v5.8.unitofmeasureqtydecimal", ftypes.STRING)
-cme_futures_streamlined_sbe_v5_8.fields.unit_of_measure_qty_optional = ProtoField.new("Unit Of Measure Qty Optional", "cme.futures.streamlined.sbe.v5.8.unitofmeasureqtyoptional", ftypes.INT64)
+cme_futures_streamlined_sbe_v5_8.fields.unit_of_measure_qty_optional = ProtoField.new("Unit Of Measure Qty Optional", "cme.futures.streamlined.sbe.v5.8.unitofmeasureqtyoptional", ftypes.DOUBLE)
 cme_futures_streamlined_sbe_v5_8.fields.user_defined_instrument = ProtoField.new("User Defined Instrument", "cme.futures.streamlined.sbe.v5.8.userdefinedinstrument", ftypes.STRING)
 cme_futures_streamlined_sbe_v5_8.fields.version = ProtoField.new("Version", "cme.futures.streamlined.sbe.v5.8.version", ftypes.UINT16)
 cme_futures_streamlined_sbe_v5_8.fields.vol_type = ProtoField.new("Vol Type", "cme.futures.streamlined.sbe.v5.8.voltype", ftypes.UINT16)
@@ -289,13 +290,13 @@ show.maturity_month_year = true
 show.md_entry_px_decimal = true
 show.md_entry_px_decimal_optional = true
 show.md_entry_size = true
-show.md_incremental_refresh_eris_351 = true
-show.md_incremental_refresh_eris_353 = true
+show.md_incremental_refresh_eris = true
+show.md_incremental_refresh_eris_no_quote = true
 show.md_incremental_refresh_eris_reference_data_and_daily_statistics = true
 show.md_incremental_refresh_indices = true
 show.md_incremental_refresh_otc = true
-show.md_incremental_refresh_trade_blocks_340 = true
-show.md_incremental_refresh_trade_blocks_349 = true
+show.md_incremental_refresh_trade_blocks = true
+show.md_incremental_refresh_trade_blocks_no_date = true
 show.md_instrument_definition_eris = true
 show.md_instrument_definition_indices = true
 show.md_news_indices = true
@@ -377,13 +378,13 @@ cme_futures_streamlined_sbe_v5_8.prefs.show_maturity_month_year = Pref.bool("Sho
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_entry_px_decimal = Pref.bool("Show Md Entry Px Decimal", show.md_entry_px_decimal, "Parse and add Md Entry Px Decimal to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_entry_px_decimal_optional = Pref.bool("Show Md Entry Px Decimal Optional", show.md_entry_px_decimal_optional, "Parse and add Md Entry Px Decimal Optional to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_entry_size = Pref.bool("Show Md Entry Size", show.md_entry_size, "Parse and add Md Entry Size to protocol tree")
-cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_351 = Pref.bool("Show Md Incremental Refresh Eris 351", show.md_incremental_refresh_eris_351, "Parse and add Md Incremental Refresh Eris 351 to protocol tree")
-cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_353 = Pref.bool("Show Md Incremental Refresh Eris 353", show.md_incremental_refresh_eris_353, "Parse and add Md Incremental Refresh Eris 353 to protocol tree")
+cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris = Pref.bool("Show Md Incremental Refresh Eris", show.md_incremental_refresh_eris, "Parse and add Md Incremental Refresh Eris to protocol tree")
+cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_no_quote = Pref.bool("Show Md Incremental Refresh Eris No Quote", show.md_incremental_refresh_eris_no_quote, "Parse and add Md Incremental Refresh Eris No Quote to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_reference_data_and_daily_statistics = Pref.bool("Show Md Incremental Refresh Eris Reference Data And Daily Statistics", show.md_incremental_refresh_eris_reference_data_and_daily_statistics, "Parse and add Md Incremental Refresh Eris Reference Data And Daily Statistics to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_indices = Pref.bool("Show Md Incremental Refresh Indices", show.md_incremental_refresh_indices, "Parse and add Md Incremental Refresh Indices to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_otc = Pref.bool("Show Md Incremental Refresh Otc", show.md_incremental_refresh_otc, "Parse and add Md Incremental Refresh Otc to protocol tree")
-cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_340 = Pref.bool("Show Md Incremental Refresh Trade Blocks 340", show.md_incremental_refresh_trade_blocks_340, "Parse and add Md Incremental Refresh Trade Blocks 340 to protocol tree")
-cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_349 = Pref.bool("Show Md Incremental Refresh Trade Blocks 349", show.md_incremental_refresh_trade_blocks_349, "Parse and add Md Incremental Refresh Trade Blocks 349 to protocol tree")
+cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks = Pref.bool("Show Md Incremental Refresh Trade Blocks", show.md_incremental_refresh_trade_blocks, "Parse and add Md Incremental Refresh Trade Blocks to protocol tree")
+cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_no_date = Pref.bool("Show Md Incremental Refresh Trade Blocks No Date", show.md_incremental_refresh_trade_blocks_no_date, "Parse and add Md Incremental Refresh Trade Blocks No Date to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_instrument_definition_eris = Pref.bool("Show Md Instrument Definition Eris", show.md_instrument_definition_eris, "Parse and add Md Instrument Definition Eris to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_instrument_definition_indices = Pref.bool("Show Md Instrument Definition Indices", show.md_instrument_definition_indices, "Parse and add Md Instrument Definition Indices to protocol tree")
 cme_futures_streamlined_sbe_v5_8.prefs.show_md_news_indices = Pref.bool("Show Md News Indices", show.md_news_indices, "Parse and add Md News Indices to protocol tree")
@@ -622,12 +623,12 @@ function cme_futures_streamlined_sbe_v5_8.prefs_changed()
     show.md_entry_size = cme_futures_streamlined_sbe_v5_8.prefs.show_md_entry_size
     changed = true
   end
-  if show.md_incremental_refresh_eris_351 ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_351 then
-    show.md_incremental_refresh_eris_351 = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_351
+  if show.md_incremental_refresh_eris ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris then
+    show.md_incremental_refresh_eris = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris
     changed = true
   end
-  if show.md_incremental_refresh_eris_353 ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_353 then
-    show.md_incremental_refresh_eris_353 = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_353
+  if show.md_incremental_refresh_eris_no_quote ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_no_quote then
+    show.md_incremental_refresh_eris_no_quote = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_no_quote
     changed = true
   end
   if show.md_incremental_refresh_eris_reference_data_and_daily_statistics ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_eris_reference_data_and_daily_statistics then
@@ -642,12 +643,12 @@ function cme_futures_streamlined_sbe_v5_8.prefs_changed()
     show.md_incremental_refresh_otc = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_otc
     changed = true
   end
-  if show.md_incremental_refresh_trade_blocks_340 ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_340 then
-    show.md_incremental_refresh_trade_blocks_340 = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_340
+  if show.md_incremental_refresh_trade_blocks ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks then
+    show.md_incremental_refresh_trade_blocks = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks
     changed = true
   end
-  if show.md_incremental_refresh_trade_blocks_349 ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_349 then
-    show.md_incremental_refresh_trade_blocks_349 = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_349
+  if show.md_incremental_refresh_trade_blocks_no_date ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_no_date then
+    show.md_incremental_refresh_trade_blocks_no_date = cme_futures_streamlined_sbe_v5_8.prefs.show_md_incremental_refresh_trade_blocks_no_date
     changed = true
   end
   if show.md_instrument_definition_eris ~= cme_futures_streamlined_sbe_v5_8.prefs.show_md_instrument_definition_eris then
@@ -805,7 +806,7 @@ size_of.mantissa = 8
 -- Display: Mantissa
 display.mantissa = function(value)
   -- Check if field has value
-  if value == Int64(0x7FFFFFFF, 0xFFFFFFF) then
+  if value == Int64(0xFFFFFFFF, 0x7FFFFFFF) then
     return "Mantissa: No Value"
   end
 
@@ -2069,20 +2070,32 @@ end
 size_of.coupon_rate = 4
 
 -- Display: Coupon Rate
-display.coupon_rate = function(value)
-  -- Check if field has value
-  if value == 2147483647 then
+display.coupon_rate = function(raw, value)
+  -- Check null sentinel value
+  if raw == 2147483647 then
     return "Coupon Rate: No Value"
   end
-  return "Coupon Rate: "..value/10000
+
+  return "Coupon Rate: "..value
+end
+
+-- Translate: Coupon Rate
+translate.coupon_rate = function(raw)
+  -- Check null sentinel value
+  if raw == 2147483647 then
+    return 0/0
+  end
+
+  return raw/10000
 end
 
 -- Dissect: Coupon Rate
 dissect.coupon_rate = function(buffer, offset, packet, parent)
   local length = size_of.coupon_rate
   local range = buffer(offset, length)
-  local value = range:le_int()
-  local display = display.coupon_rate(value, buffer, offset, packet, parent)
+  local raw = range:le_int()
+  local value = translate.coupon_rate(raw)
+  local display = display.coupon_rate(raw, value, buffer, offset, packet, parent)
 
   parent:add(cme_futures_streamlined_sbe_v5_8.fields.coupon_rate, range, value, display)
 
@@ -3115,20 +3128,32 @@ end
 size_of.notional_percentage_outstanding = 4
 
 -- Display: Notional Percentage Outstanding
-display.notional_percentage_outstanding = function(value)
-  -- Check if field has value
-  if value == 2147483647 then
+display.notional_percentage_outstanding = function(raw, value)
+  -- Check null sentinel value
+  if raw == 2147483647 then
     return "Notional Percentage Outstanding: No Value"
   end
-  return "Notional Percentage Outstanding: "..value/10000
+
+  return "Notional Percentage Outstanding: "..value
+end
+
+-- Translate: Notional Percentage Outstanding
+translate.notional_percentage_outstanding = function(raw)
+  -- Check null sentinel value
+  if raw == 2147483647 then
+    return 0/0
+  end
+
+  return raw/10000
 end
 
 -- Dissect: Notional Percentage Outstanding
 dissect.notional_percentage_outstanding = function(buffer, offset, packet, parent)
   local length = size_of.notional_percentage_outstanding
   local range = buffer(offset, length)
-  local value = range:le_int()
-  local display = display.notional_percentage_outstanding(value, buffer, offset, packet, parent)
+  local raw = range:le_int()
+  local value = translate.notional_percentage_outstanding(raw)
+  local display = display.notional_percentage_outstanding(raw, value, buffer, offset, packet, parent)
 
   parent:add(cme_futures_streamlined_sbe_v5_8.fields.notional_percentage_outstanding, range, value, display)
 
@@ -3441,20 +3466,32 @@ end
 size_of.md_entry_px_optional = 8
 
 -- Display: Md Entry Px Optional
-display.md_entry_px_optional = function(value)
-  -- Check if field has value
-  if value == 9223372036854775807 then
+display.md_entry_px_optional = function(raw, value)
+  -- Check null sentinel value
+  if raw == Int64(0xFFFFFFFF, 0x7FFFFFFF) then
     return "Md Entry Px Optional: No Value"
   end
-  return "Md Entry Px Optional: "..value:tonumber()/10000000
+
+  return "Md Entry Px Optional: "..value
+end
+
+-- Translate: Md Entry Px Optional
+translate.md_entry_px_optional = function(raw)
+  -- Check null sentinel value
+  if raw == Int64(0xFFFFFFFF, 0x7FFFFFFF) then
+    return 0/0
+  end
+
+  return raw:tonumber()/10000000
 end
 
 -- Dissect: Md Entry Px Optional
 dissect.md_entry_px_optional = function(buffer, offset, packet, parent)
   local length = size_of.md_entry_px_optional
   local range = buffer(offset, length)
-  local value = range:le_int64()
-  local display = display.md_entry_px_optional(value, buffer, offset, packet, parent)
+  local raw = range:le_int64()
+  local value = translate.md_entry_px_optional(raw)
+  local display = display.md_entry_px_optional(raw, value, buffer, offset, packet, parent)
 
   parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_entry_px_optional, range, value, display)
 
@@ -4217,7 +4254,7 @@ size_of.md_entry_size_optional = 8
 -- Display: Md Entry Size Optional
 display.md_entry_size_optional = function(value)
   -- Check if field has value
-  if value == UInt64(0xFFFFFFFF, 0xFFFFFFF) then
+  if value == UInt64(0xFFFFFFFF, 0xFFFFFFFF) then
     return "Md Entry Size Optional: No Value"
   end
 
@@ -4484,8 +4521,8 @@ dissect.m_d_incremental_refresh_eris_353_groups = function(buffer, offset, packe
   return dissect.m_d_incremental_refresh_eris_353_groups_fields(buffer, offset, packet, parent)
 end
 
--- Calculate size of: Md Incremental Refresh Eris 353
-size_of.md_incremental_refresh_eris_353 = function(buffer, offset)
+-- Calculate size of: Md Incremental Refresh Eris
+size_of.md_incremental_refresh_eris = function(buffer, offset)
   local index = 0
 
   index = index + size_of.transact_time
@@ -4499,13 +4536,13 @@ size_of.md_incremental_refresh_eris_353 = function(buffer, offset)
   return index
 end
 
--- Display: Md Incremental Refresh Eris 353
-display.md_incremental_refresh_eris_353 = function(buffer, offset, size, packet, parent)
+-- Display: Md Incremental Refresh Eris
+display.md_incremental_refresh_eris = function(buffer, offset, size, packet, parent)
   return ""
 end
 
--- Dissect Fields: Md Incremental Refresh Eris 353
-dissect.md_incremental_refresh_eris_353_fields = function(buffer, offset, packet, parent)
+-- Dissect Fields: Md Incremental Refresh Eris
+dissect.md_incremental_refresh_eris_fields = function(buffer, offset, packet, parent)
   local index = offset
 
   -- Transact Time: 8 Byte Unsigned Fixed Width Integer
@@ -4523,17 +4560,17 @@ dissect.md_incremental_refresh_eris_353_fields = function(buffer, offset, packet
   return index
 end
 
--- Dissect: Md Incremental Refresh Eris 353
-dissect.md_incremental_refresh_eris_353 = function(buffer, offset, packet, parent)
+-- Dissect: Md Incremental Refresh Eris
+dissect.md_incremental_refresh_eris = function(buffer, offset, packet, parent)
   -- Optionally add dynamic struct element to protocol tree
-  if show.md_incremental_refresh_eris_353 then
-    local length = size_of.md_incremental_refresh_eris_353(buffer, offset)
+  if show.md_incremental_refresh_eris then
+    local length = size_of.md_incremental_refresh_eris(buffer, offset)
     local range = buffer(offset, length)
-    local display = display.md_incremental_refresh_eris_353(buffer, packet, parent)
-    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris_353, range, display)
+    local display = display.md_incremental_refresh_eris(buffer, packet, parent)
+    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris, range, display)
   end
 
-  return dissect.md_incremental_refresh_eris_353_fields(buffer, offset, packet, parent)
+  return dissect.md_incremental_refresh_eris_fields(buffer, offset, packet, parent)
 end
 
 -- Calculate size of: M D Incremental Refresh Eris 351 Group
@@ -4702,8 +4739,8 @@ dissect.m_d_incremental_refresh_eris_351_groups = function(buffer, offset, packe
   return dissect.m_d_incremental_refresh_eris_351_groups_fields(buffer, offset, packet, parent)
 end
 
--- Calculate size of: Md Incremental Refresh Eris 351
-size_of.md_incremental_refresh_eris_351 = function(buffer, offset)
+-- Calculate size of: Md Incremental Refresh Eris No Quote
+size_of.md_incremental_refresh_eris_no_quote = function(buffer, offset)
   local index = 0
 
   index = index + size_of.transact_time
@@ -4717,13 +4754,13 @@ size_of.md_incremental_refresh_eris_351 = function(buffer, offset)
   return index
 end
 
--- Display: Md Incremental Refresh Eris 351
-display.md_incremental_refresh_eris_351 = function(buffer, offset, size, packet, parent)
+-- Display: Md Incremental Refresh Eris No Quote
+display.md_incremental_refresh_eris_no_quote = function(buffer, offset, size, packet, parent)
   return ""
 end
 
--- Dissect Fields: Md Incremental Refresh Eris 351
-dissect.md_incremental_refresh_eris_351_fields = function(buffer, offset, packet, parent)
+-- Dissect Fields: Md Incremental Refresh Eris No Quote
+dissect.md_incremental_refresh_eris_no_quote_fields = function(buffer, offset, packet, parent)
   local index = offset
 
   -- Transact Time: 8 Byte Unsigned Fixed Width Integer
@@ -4741,17 +4778,17 @@ dissect.md_incremental_refresh_eris_351_fields = function(buffer, offset, packet
   return index
 end
 
--- Dissect: Md Incremental Refresh Eris 351
-dissect.md_incremental_refresh_eris_351 = function(buffer, offset, packet, parent)
+-- Dissect: Md Incremental Refresh Eris No Quote
+dissect.md_incremental_refresh_eris_no_quote = function(buffer, offset, packet, parent)
   -- Optionally add dynamic struct element to protocol tree
-  if show.md_incremental_refresh_eris_351 then
-    local length = size_of.md_incremental_refresh_eris_351(buffer, offset)
+  if show.md_incremental_refresh_eris_no_quote then
+    local length = size_of.md_incremental_refresh_eris_no_quote(buffer, offset)
     local range = buffer(offset, length)
-    local display = display.md_incremental_refresh_eris_351(buffer, packet, parent)
-    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris_351, range, display)
+    local display = display.md_incremental_refresh_eris_no_quote(buffer, packet, parent)
+    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_eris_no_quote, range, display)
   end
 
-  return dissect.md_incremental_refresh_eris_351_fields(buffer, offset, packet, parent)
+  return dissect.md_incremental_refresh_eris_no_quote_fields(buffer, offset, packet, parent)
 end
 
 -- Size: Leg Ref Id
@@ -4830,20 +4867,32 @@ end
 size_of.strike_price = 8
 
 -- Display: Strike Price
-display.strike_price = function(value)
-  -- Check if field has value
-  if value == 9223372036854775807 then
+display.strike_price = function(raw, value)
+  -- Check null sentinel value
+  if raw == Int64(0xFFFFFFFF, 0x7FFFFFFF) then
     return "Strike Price: No Value"
   end
-  return "Strike Price: "..value:tonumber()/10000000
+
+  return "Strike Price: "..value
+end
+
+-- Translate: Strike Price
+translate.strike_price = function(raw)
+  -- Check null sentinel value
+  if raw == Int64(0xFFFFFFFF, 0x7FFFFFFF) then
+    return 0/0
+  end
+
+  return raw:tonumber()/10000000
 end
 
 -- Dissect: Strike Price
 dissect.strike_price = function(buffer, offset, packet, parent)
   local length = size_of.strike_price
   local range = buffer(offset, length)
-  local value = range:le_int64()
-  local display = display.strike_price(value, buffer, offset, packet, parent)
+  local raw = range:le_int64()
+  local value = translate.strike_price(raw)
+  local display = display.strike_price(raw, value, buffer, offset, packet, parent)
 
   parent:add(cme_futures_streamlined_sbe_v5_8.fields.strike_price, range, value, display)
 
@@ -4915,20 +4964,32 @@ end
 size_of.unit_of_measure_qty_optional = 8
 
 -- Display: Unit Of Measure Qty Optional
-display.unit_of_measure_qty_optional = function(value)
-  -- Check if field has value
-  if value == 9223372036854775807 then
+display.unit_of_measure_qty_optional = function(raw, value)
+  -- Check null sentinel value
+  if raw == Int64(0xFFFFFFFF, 0x7FFFFFFF) then
     return "Unit Of Measure Qty Optional: No Value"
   end
-  return "Unit Of Measure Qty Optional: "..value:tonumber()/10000000
+
+  return "Unit Of Measure Qty Optional: "..value
+end
+
+-- Translate: Unit Of Measure Qty Optional
+translate.unit_of_measure_qty_optional = function(raw)
+  -- Check null sentinel value
+  if raw == Int64(0xFFFFFFFF, 0x7FFFFFFF) then
+    return 0/0
+  end
+
+  return raw:tonumber()/10000000
 end
 
 -- Dissect: Unit Of Measure Qty Optional
 dissect.unit_of_measure_qty_optional = function(buffer, offset, packet, parent)
   local length = size_of.unit_of_measure_qty_optional
   local range = buffer(offset, length)
-  local value = range:le_int64()
-  local display = display.unit_of_measure_qty_optional(value, buffer, offset, packet, parent)
+  local raw = range:le_int64()
+  local value = translate.unit_of_measure_qty_optional(raw)
+  local display = display.unit_of_measure_qty_optional(raw, value, buffer, offset, packet, parent)
 
   parent:add(cme_futures_streamlined_sbe_v5_8.fields.unit_of_measure_qty_optional, range, value, display)
 
@@ -5013,7 +5074,7 @@ size_of.security_id = 8
 -- Display: Security Id
 display.security_id = function(value)
   -- Check if field has value
-  if value == UInt64(0xFFFFFFFF, 0xFFFFFFF) then
+  if value == UInt64(0xFFFFFFFF, 0xFFFFFFFF) then
     return "Security Id: No Value"
   end
 
@@ -5323,7 +5384,7 @@ size_of.transact_time_optional = 8
 -- Display: Transact Time Optional
 display.transact_time_optional = function(value)
   -- Check if field has value
-  if value == UInt64(0xFFFFFFFF, 0xFFFFFFF) then
+  if value == UInt64(0xFFFFFFFF, 0xFFFFFFFF) then
     return "Transact Time Optional: No Value"
   end
 
@@ -5342,8 +5403,8 @@ dissect.transact_time_optional = function(buffer, offset, packet, parent)
   return offset + length, value
 end
 
--- Calculate size of: Md Incremental Refresh Trade Blocks 349
-size_of.md_incremental_refresh_trade_blocks_349 = function(buffer, offset)
+-- Calculate size of: Md Incremental Refresh Trade Blocks
+size_of.md_incremental_refresh_trade_blocks = function(buffer, offset)
   local index = 0
 
   index = index + size_of.transact_time_optional
@@ -5359,13 +5420,13 @@ size_of.md_incremental_refresh_trade_blocks_349 = function(buffer, offset)
   return index
 end
 
--- Display: Md Incremental Refresh Trade Blocks 349
-display.md_incremental_refresh_trade_blocks_349 = function(buffer, offset, size, packet, parent)
+-- Display: Md Incremental Refresh Trade Blocks
+display.md_incremental_refresh_trade_blocks = function(buffer, offset, size, packet, parent)
   return ""
 end
 
--- Dissect Fields: Md Incremental Refresh Trade Blocks 349
-dissect.md_incremental_refresh_trade_blocks_349_fields = function(buffer, offset, packet, parent)
+-- Dissect Fields: Md Incremental Refresh Trade Blocks
+dissect.md_incremental_refresh_trade_blocks_fields = function(buffer, offset, packet, parent)
   local index = offset
 
   -- Transact Time Optional: 8 Byte Unsigned Fixed Width Integer Nullable
@@ -5386,17 +5447,17 @@ dissect.md_incremental_refresh_trade_blocks_349_fields = function(buffer, offset
   return index
 end
 
--- Dissect: Md Incremental Refresh Trade Blocks 349
-dissect.md_incremental_refresh_trade_blocks_349 = function(buffer, offset, packet, parent)
+-- Dissect: Md Incremental Refresh Trade Blocks
+dissect.md_incremental_refresh_trade_blocks = function(buffer, offset, packet, parent)
   -- Optionally add dynamic struct element to protocol tree
-  if show.md_incremental_refresh_trade_blocks_349 then
-    local length = size_of.md_incremental_refresh_trade_blocks_349(buffer, offset)
+  if show.md_incremental_refresh_trade_blocks then
+    local length = size_of.md_incremental_refresh_trade_blocks(buffer, offset)
     local range = buffer(offset, length)
-    local display = display.md_incremental_refresh_trade_blocks_349(buffer, packet, parent)
-    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks_349, range, display)
+    local display = display.md_incremental_refresh_trade_blocks(buffer, packet, parent)
+    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks, range, display)
   end
 
-  return dissect.md_incremental_refresh_trade_blocks_349_fields(buffer, offset, packet, parent)
+  return dissect.md_incremental_refresh_trade_blocks_fields(buffer, offset, packet, parent)
 end
 
 -- Size: Md Entry Time
@@ -6621,8 +6682,8 @@ dissect.m_d_incremental_refresh_trade_blocks_340_groups = function(buffer, offse
   return dissect.m_d_incremental_refresh_trade_blocks_340_groups_fields(buffer, offset, packet, parent)
 end
 
--- Calculate size of: Md Incremental Refresh Trade Blocks 340
-size_of.md_incremental_refresh_trade_blocks_340 = function(buffer, offset)
+-- Calculate size of: Md Incremental Refresh Trade Blocks No Date
+size_of.md_incremental_refresh_trade_blocks_no_date = function(buffer, offset)
   local index = 0
 
   index = index + size_of.transact_time
@@ -6636,13 +6697,13 @@ size_of.md_incremental_refresh_trade_blocks_340 = function(buffer, offset)
   return index
 end
 
--- Display: Md Incremental Refresh Trade Blocks 340
-display.md_incremental_refresh_trade_blocks_340 = function(buffer, offset, size, packet, parent)
+-- Display: Md Incremental Refresh Trade Blocks No Date
+display.md_incremental_refresh_trade_blocks_no_date = function(buffer, offset, size, packet, parent)
   return ""
 end
 
--- Dissect Fields: Md Incremental Refresh Trade Blocks 340
-dissect.md_incremental_refresh_trade_blocks_340_fields = function(buffer, offset, packet, parent)
+-- Dissect Fields: Md Incremental Refresh Trade Blocks No Date
+dissect.md_incremental_refresh_trade_blocks_no_date_fields = function(buffer, offset, packet, parent)
   local index = offset
 
   -- Transact Time: 8 Byte Unsigned Fixed Width Integer
@@ -6660,17 +6721,17 @@ dissect.md_incremental_refresh_trade_blocks_340_fields = function(buffer, offset
   return index
 end
 
--- Dissect: Md Incremental Refresh Trade Blocks 340
-dissect.md_incremental_refresh_trade_blocks_340 = function(buffer, offset, packet, parent)
+-- Dissect: Md Incremental Refresh Trade Blocks No Date
+dissect.md_incremental_refresh_trade_blocks_no_date = function(buffer, offset, packet, parent)
   -- Optionally add dynamic struct element to protocol tree
-  if show.md_incremental_refresh_trade_blocks_340 then
-    local length = size_of.md_incremental_refresh_trade_blocks_340(buffer, offset)
+  if show.md_incremental_refresh_trade_blocks_no_date then
+    local length = size_of.md_incremental_refresh_trade_blocks_no_date(buffer, offset)
     local range = buffer(offset, length)
-    local display = display.md_incremental_refresh_trade_blocks_340(buffer, packet, parent)
-    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks_340, range, display)
+    local display = display.md_incremental_refresh_trade_blocks_no_date(buffer, packet, parent)
+    parent = parent:add(cme_futures_streamlined_sbe_v5_8.fields.md_incremental_refresh_trade_blocks_no_date, range, display)
   end
 
-  return dissect.md_incremental_refresh_trade_blocks_340_fields(buffer, offset, packet, parent)
+  return dissect.md_incremental_refresh_trade_blocks_no_date_fields(buffer, offset, packet, parent)
 end
 
 -- Size: Text 500
@@ -6801,7 +6862,7 @@ size_of.orig_time = 8
 -- Display: Orig Time
 display.orig_time = function(value)
   -- Check if field has value
-  if value == UInt64(0xFFFFFFFF, 0xFFFFFFF) then
+  if value == UInt64(0xFFFFFFFF, 0xFFFFFFFF) then
     return "Orig Time: No Value"
   end
 
@@ -7226,7 +7287,7 @@ size_of.nominal = 8
 -- Display: Nominal
 display.nominal = function(value)
   -- Check if field has value
-  if value == UInt64(0xFFFFFFFF, 0xFFFFFFF) then
+  if value == UInt64(0xFFFFFFFF, 0xFFFFFFFF) then
     return "Nominal: No Value"
   end
 
@@ -8696,9 +8757,9 @@ size_of.payload = function(buffer, offset, template_id)
   if template_id == 339 then
     return size_of.md_news_indices(buffer, offset)
   end
-  -- Size of Md Incremental Refresh Trade Blocks 340
+  -- Size of Md Incremental Refresh Trade Blocks No Date
   if template_id == 340 then
-    return size_of.md_incremental_refresh_trade_blocks_340(buffer, offset)
+    return size_of.md_incremental_refresh_trade_blocks_no_date(buffer, offset)
   end
   -- Size of Quote Request
   if template_id == 345 then
@@ -8712,17 +8773,17 @@ size_of.payload = function(buffer, offset, template_id)
   if template_id == 348 then
     return size_of.md_incremental_refresh_indices(buffer, offset)
   end
-  -- Size of Md Incremental Refresh Trade Blocks 349
+  -- Size of Md Incremental Refresh Trade Blocks
   if template_id == 349 then
-    return size_of.md_incremental_refresh_trade_blocks_349(buffer, offset)
+    return size_of.md_incremental_refresh_trade_blocks(buffer, offset)
   end
-  -- Size of Md Incremental Refresh Eris 351
+  -- Size of Md Incremental Refresh Eris No Quote
   if template_id == 351 then
-    return size_of.md_incremental_refresh_eris_351(buffer, offset)
+    return size_of.md_incremental_refresh_eris_no_quote(buffer, offset)
   end
-  -- Size of Md Incremental Refresh Eris 353
+  -- Size of Md Incremental Refresh Eris
   if template_id == 353 then
-    return size_of.md_incremental_refresh_eris_353(buffer, offset)
+    return size_of.md_incremental_refresh_eris(buffer, offset)
   end
   -- Size of Md Incremental Refresh Otc
   if template_id == 356 then
@@ -8762,9 +8823,9 @@ dissect.payload_branches = function(buffer, offset, packet, parent, template_id)
   if template_id == 339 then
     return dissect.md_news_indices(buffer, offset, packet, parent)
   end
-  -- Dissect Md Incremental Refresh Trade Blocks 340
+  -- Dissect Md Incremental Refresh Trade Blocks No Date
   if template_id == 340 then
-    return dissect.md_incremental_refresh_trade_blocks_340(buffer, offset, packet, parent)
+    return dissect.md_incremental_refresh_trade_blocks_no_date(buffer, offset, packet, parent)
   end
   -- Dissect Quote Request
   if template_id == 345 then
@@ -8778,17 +8839,17 @@ dissect.payload_branches = function(buffer, offset, packet, parent, template_id)
   if template_id == 348 then
     return dissect.md_incremental_refresh_indices(buffer, offset, packet, parent)
   end
-  -- Dissect Md Incremental Refresh Trade Blocks 349
+  -- Dissect Md Incremental Refresh Trade Blocks
   if template_id == 349 then
-    return dissect.md_incremental_refresh_trade_blocks_349(buffer, offset, packet, parent)
+    return dissect.md_incremental_refresh_trade_blocks(buffer, offset, packet, parent)
   end
-  -- Dissect Md Incremental Refresh Eris 351
+  -- Dissect Md Incremental Refresh Eris No Quote
   if template_id == 351 then
-    return dissect.md_incremental_refresh_eris_351(buffer, offset, packet, parent)
+    return dissect.md_incremental_refresh_eris_no_quote(buffer, offset, packet, parent)
   end
-  -- Dissect Md Incremental Refresh Eris 353
+  -- Dissect Md Incremental Refresh Eris
   if template_id == 353 then
-    return dissect.md_incremental_refresh_eris_353(buffer, offset, packet, parent)
+    return dissect.md_incremental_refresh_eris(buffer, offset, packet, parent)
   end
   -- Dissect Md Incremental Refresh Otc
   if template_id == 356 then
@@ -8883,7 +8944,7 @@ display.template_id = function(value)
     return "Template Id: Md News Indices (339)"
   end
   if value == 340 then
-    return "Template Id: Md Incremental Refresh Trade Blocks (340)"
+    return "Template Id: Md Incremental Refresh Trade Blocks 340 (340)"
   end
   if value == 345 then
     return "Template Id: Quote Request (345)"
@@ -8895,13 +8956,13 @@ display.template_id = function(value)
     return "Template Id: Md Incremental Refresh Indices (348)"
   end
   if value == 349 then
-    return "Template Id: Md Incremental Refresh Trade Blocks (349)"
+    return "Template Id: Md Incremental Refresh Trade Blocks 349 (349)"
   end
   if value == 351 then
-    return "Template Id: Md Incremental Refresh Eris (351)"
+    return "Template Id: Md Incremental Refresh Eris 351 (351)"
   end
   if value == 353 then
-    return "Template Id: Md Incremental Refresh Eris (353)"
+    return "Template Id: Md Incremental Refresh Eris 353 (353)"
   end
   if value == 356 then
     return "Template Id: Md Incremental Refresh Otc (356)"
@@ -9187,7 +9248,10 @@ end
 
 -- Verify Schema Id Field
 verify.schema_id = function(buffer)
-  if 5 == buffer(18, 2):le_uint() then
+  -- Attempt to read field
+  local value = buffer(18, 2):le_uint()
+
+  if value == 5 then
     return true
   end
 
@@ -9196,7 +9260,10 @@ end
 
 -- Verify Version Field
 verify.version = function(buffer)
-  if 8 == buffer(20, 2):le_uint() then
+  -- Attempt to read field
+  local value = buffer(20, 2):le_uint()
+
+  if value == 8 then
     return true
   end
 
