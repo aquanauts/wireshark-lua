@@ -14,6 +14,7 @@ local display = {}
 local dissect = {}
 local size_of = {}
 local verify = {}
+local translate = {}
 
 -----------------------------------------------------------------------
 -- Declare Protocol Fields
@@ -42,7 +43,7 @@ cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.packet = ProtoField.new("Packe
 cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.packet_header = ProtoField.new("Packet Header", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.packetheader", ftypes.STRING)
 cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.participant_id = ProtoField.new("Participant Id", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.participantid", ftypes.STRING)
 cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.payload = ProtoField.new("Payload", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.payload", ftypes.STRING)
-cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.price = ProtoField.new("Price", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.price", ftypes.UINT64)
+cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.price = ProtoField.new("Price", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.price", ftypes.DOUBLE)
 cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.sequence = ProtoField.new("Sequence", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.sequence", ftypes.UINT32)
 cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.side = ProtoField.new("Side", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.side", ftypes.STRING)
 cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.symbol = ProtoField.new("Symbol", "cboe.edgx.options.auctionfeed.pitch.v1.1.1.symbol", ftypes.STRING)
@@ -344,11 +345,17 @@ display.price = function(value)
   return "Price: "..value
 end
 
+-- Translate: Price
+translate.price = function(raw)
+  return raw:tonumber()*10000
+end
+
 -- Dissect: Price
 dissect.price = function(buffer, offset, packet, parent)
   local length = size_of.price
   local range = buffer(offset, length)
-  local value = range:le_uint64()
+  local raw = range:le_uint64()
+  local value = translate.price(raw)
   local display = display.price(value, buffer, offset, packet, parent)
 
   parent:add(cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.price, range, value, display)
@@ -1029,27 +1036,13 @@ dissect.message_header = function(buffer, offset, packet, parent)
   return dissect.message_header_fields(buffer, offset, packet, parent)
 end
 
--- Calculate size of: Message
-size_of.message = function(buffer, offset)
-  local index = 0
-
-  index = index + size_of.message_header(buffer, offset + index)
-
-  -- Calculate runtime size of Payload field
-  local payload_offset = offset + index
-  local payload_type = buffer(payload_offset - 1, 1):le_uint()
-  index = index + size_of.payload(buffer, payload_offset, payload_type)
-
-  return index
-end
-
 -- Display: Message
 display.message = function(buffer, offset, size, packet, parent)
   return ""
 end
 
 -- Dissect Fields: Message
-dissect.message_fields = function(buffer, offset, packet, parent)
+dissect.message_fields = function(buffer, offset, packet, parent, size_of_message)
   local index = offset
 
   -- Message Header: Struct of 2 fields
@@ -1065,16 +1058,17 @@ dissect.message_fields = function(buffer, offset, packet, parent)
 end
 
 -- Dissect: Message
-dissect.message = function(buffer, offset, packet, parent)
-  -- Optionally add dynamic struct element to protocol tree
+dissect.message = function(buffer, offset, packet, parent, size_of_message)
+  -- Optionally add struct element to protocol tree
   if show.message then
-    local length = size_of.message(buffer, offset)
-    local range = buffer(offset, length)
+    local range = buffer(offset, size_of_message)
     local display = display.message(buffer, packet, parent)
     parent = parent:add(cboe_edgx_options_auctionfeed_pitch_v1_1_1.fields.message, range, display)
   end
 
-  return dissect.message_fields(buffer, offset, packet, parent)
+  dissect.message_fields(buffer, offset, packet, parent, size_of_message)
+
+  return offset + size_of_message
 end
 
 -- Size: Sequence
@@ -1221,7 +1215,12 @@ dissect.packet = function(buffer, packet, parent)
 
   -- Message: Struct of 2 fields
   while index < end_of_payload do
-    index = dissect.message(buffer, index, packet, parent)
+
+    -- Dependency element: Message Length
+    local message_length = buffer(index, 1):le_uint()
+
+    -- Message: Struct of 2 fields
+    index = dissect.message(buffer, index, packet, parent, message_length)
   end
 
   return index
